@@ -26,7 +26,7 @@ mavenCentral()
 }
 
 java {
-    group = 'com.example.demo'
+    group = 'com.formation.hei'
     sourceCompatibility = '21'
     targetCompatibility = '21'
 }
