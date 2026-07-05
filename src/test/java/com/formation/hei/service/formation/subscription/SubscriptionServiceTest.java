@@ -16,11 +16,10 @@ import com.formation.hei.model.Course;
 import com.formation.hei.model.User;
 import com.formation.hei.repository.CourseRepository;
 import com.formation.hei.repository.UserRepository;
+import com.formation.hei.service.subscription.SubscriptionService;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.formation.hei.service.subscription.SubscriptionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,73 +29,70 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SubscriptionServiceTest {
 
-    @Mock private UserRepository userRepository;
+  @Mock private UserRepository userRepository;
 
-    @Mock private CourseRepository courseRepository;
+  @Mock private CourseRepository courseRepository;
 
-    @Mock private Mailer mailer;
+  @Mock private Mailer mailer;
 
-    private SubscriptionService subscriptionService;
+  private SubscriptionService subscriptionService;
 
-    private User user;
-    private Course course;
+  private User user;
+  private Course course;
 
-    @BeforeEach
-    void setUp() {
-        subscriptionService = new SubscriptionService(userRepository, courseRepository, mailer);
-        user =
-                new User(
-                        UUID.randomUUID(), "Jean", "Rakoto", "jrakoto", "jean.rakoto@example.com");
-        course =
-                new Course(
-                        UUID.randomUUID(), "Formation Spring Boot Avancé", Instant.now(), Instant.now());
-    }
+  @BeforeEach
+  void setUp() {
+    subscriptionService = new SubscriptionService(userRepository, courseRepository, mailer);
+    user = new User(UUID.randomUUID(), "Jean", "Rakoto", "jrakoto", "jean.rakoto@example.com");
+    course =
+        new Course(UUID.randomUUID(), "Formation Spring Boot Avancé", Instant.now(), Instant.now());
+  }
 
-    @Test
-    void inscrit_un_utilisateur_et_envoie_un_email_de_confirmation() {
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(courseRepository.findById(course.getId())).thenReturn(Optional.of(course));
+  @Test
+  void inscrit_un_utilisateur_et_envoie_un_email_de_confirmation() {
+    when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+    when(courseRepository.findById(course.getId())).thenReturn(Optional.of(course));
 
-        var response = subscriptionService.subscribe(user.getId(), course.getId());
+    var response = subscriptionService.subscribe(user.getId(), course.getId());
 
-        assertThat(response.userId()).isEqualTo(user.getId());
-        assertThat(response.courseId()).isEqualTo(course.getId());
-        assertThat(response.message()).contains("Jean").contains("Formation Spring Boot Avancé");
-        assertThat(user.getCourseIds()).contains(course.getId());
-        verify(userRepository).save(user);
-        verify(mailer).accept(any(Email.class));
-    }
+    assertThat(response.userId()).isEqualTo(user.getId());
+    assertThat(response.courseId()).isEqualTo(course.getId());
+    assertThat(response.message()).contains("Jean").contains("Formation Spring Boot Avancé");
+    assertThat(user.getCourseIds()).contains(course.getId());
+    verify(userRepository).save(user);
+    verify(mailer).accept(any(Email.class));
+  }
 
-    @Test
-    void rejette_si_l_utilisateur_n_existe_pas() {
-        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+  @Test
+  void rejette_si_l_utilisateur_n_existe_pas() {
+    when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> subscriptionService.subscribe(user.getId(), course.getId()))
-                .isInstanceOf(UserNotFoundException.class);
+    assertThatThrownBy(() -> subscriptionService.subscribe(user.getId(), course.getId()))
+        .isInstanceOf(UserNotFoundException.class);
 
-        verifyNoInteractions(mailer);
-    }
+    verifyNoInteractions(mailer);
+  }
 
-    @Test
-    void rejette_si_le_cours_n_existe_pas() {
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(courseRepository.findById(course.getId())).thenReturn(Optional.empty());
+  @Test
+  void rejette_si_le_cours_n_existe_pas() {
+    when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+    when(courseRepository.findById(course.getId())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> subscriptionService.subscribe(user.getId(), course.getId()))
-                .isInstanceOf(CourseNotFoundException.class);
+    assertThatThrownBy(() -> subscriptionService.subscribe(user.getId(), course.getId()))
+        .isInstanceOf(CourseNotFoundException.class);
 
-        verifyNoInteractions(mailer);
-    }
+    verifyNoInteractions(mailer);
+  }
 
-    @Test
-    void rejette_si_deja_inscrit() {
-        user.getCourseIds().add(course.getId());
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(courseRepository.findById(course.getId())).thenReturn(Optional.of(course));
+  @Test
+  void rejette_si_deja_inscrit() {
+    user.getCourseIds().add(course.getId());
+    when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+    when(courseRepository.findById(course.getId())).thenReturn(Optional.of(course));
 
-        assertThatThrownBy(() -> subscriptionService.subscribe(user.getId(), course.getId()))
-                .isInstanceOf(AlreadySubscribedException.class);
+    assertThatThrownBy(() -> subscriptionService.subscribe(user.getId(), course.getId()))
+        .isInstanceOf(AlreadySubscribedException.class);
 
-        verifyNoInteractions(mailer);
-    }
+    verifyNoInteractions(mailer);
+  }
 }
