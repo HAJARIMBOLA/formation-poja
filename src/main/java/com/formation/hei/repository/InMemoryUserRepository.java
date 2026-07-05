@@ -8,8 +8,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Repository;
 
-// TODO: remplacer par une implémentation JPA/Postgres quand la couche data sera en place.
-// L'interface UserRepository ne change pas, seul ce composant sera remplacé.
 @Repository
 public class InMemoryUserRepository implements UserRepository {
 
@@ -28,7 +26,6 @@ public class InMemoryUserRepository implements UserRepository {
 
   @PostConstruct
   void seed() {
-    // Données de démo pour tester l'endpoint sans dépendre d'une base de données.
     var demoUser =
         new User(
             UUID.fromString("11111111-1111-1111-1111-111111111111"),
