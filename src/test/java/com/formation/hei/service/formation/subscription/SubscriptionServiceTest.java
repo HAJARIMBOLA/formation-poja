@@ -2,7 +2,6 @@ package com.formation.hei.service.formation.subscription;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -10,21 +9,22 @@ import static org.mockito.Mockito.when;
 import com.formation.hei.exception.AlreadySubscribedException;
 import com.formation.hei.exception.CourseNotFoundException;
 import com.formation.hei.exception.UserNotFoundException;
-import com.formation.hei.mail.Email;
-import com.formation.hei.mail.Mailer;
 import com.formation.hei.model.Course;
 import com.formation.hei.model.User;
 import com.formation.hei.repository.CourseRepository;
 import com.formation.hei.repository.UserRepository;
 import com.formation.hei.service.subscription.SubscriptionService;
+import com.formation.hei.service.subscription.event.EnrollmentEvent;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionServiceTest {
@@ -33,7 +33,7 @@ class SubscriptionServiceTest {
 
   @Mock private CourseRepository courseRepository;
 
-  @Mock private Mailer mailer;
+  @Mock private ApplicationEventPublisher eventPublisher;
 
   private SubscriptionService subscriptionService;
 
@@ -42,14 +42,15 @@ class SubscriptionServiceTest {
 
   @BeforeEach
   void setUp() {
-    subscriptionService = new SubscriptionService(userRepository, courseRepository, mailer);
+    subscriptionService =
+        new SubscriptionService(userRepository, courseRepository, eventPublisher);
     user = new User(UUID.randomUUID(), "Jean", "Rakoto", "jrakoto", "jean.rakoto@example.com");
     course =
         new Course(UUID.randomUUID(), "Formation Spring Boot Avancé", Instant.now(), Instant.now());
   }
 
   @Test
-  void inscrit_un_utilisateur_et_envoie_un_email_de_confirmation() {
+  void inscrit_un_utilisateur_et_publie_un_evenement_d_inscription() {
     when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
     when(courseRepository.findById(course.getId())).thenReturn(Optional.of(course));
 
@@ -60,7 +61,11 @@ class SubscriptionServiceTest {
     assertThat(response.message()).contains("Jean").contains("Formation Spring Boot Avancé");
     assertThat(user.getCourseIds()).contains(course.getId());
     verify(userRepository).save(user);
-    verify(mailer).accept(any(Email.class));
+
+    var eventCaptor = ArgumentCaptor.forClass(EnrollmentEvent.class);
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    assertThat(eventCaptor.getValue().user()).isEqualTo(user);
+    assertThat(eventCaptor.getValue().course()).isEqualTo(course);
   }
 
   @Test
@@ -70,7 +75,7 @@ class SubscriptionServiceTest {
     assertThatThrownBy(() -> subscriptionService.subscribe(user.getId(), course.getId()))
         .isInstanceOf(UserNotFoundException.class);
 
-    verifyNoInteractions(mailer);
+    verifyNoInteractions(eventPublisher);
   }
 
   @Test
@@ -81,7 +86,7 @@ class SubscriptionServiceTest {
     assertThatThrownBy(() -> subscriptionService.subscribe(user.getId(), course.getId()))
         .isInstanceOf(CourseNotFoundException.class);
 
-    verifyNoInteractions(mailer);
+    verifyNoInteractions(eventPublisher);
   }
 
   @Test
@@ -93,6 +98,6 @@ class SubscriptionServiceTest {
     assertThatThrownBy(() -> subscriptionService.subscribe(user.getId(), course.getId()))
         .isInstanceOf(AlreadySubscribedException.class);
 
-    verifyNoInteractions(mailer);
+    verifyNoInteractions(eventPublisher);
   }
 }
