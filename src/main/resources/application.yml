@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:formation-poja;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      # Training-project convenience: recreate the schema from the entities on every startup.
+      # Replace with Flyway/Liquibase migrations + ddl-auto=validate for a real project.
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+
+aws:
+  eventBridge:
+    bus: ${AWS_EVENT_BRIDGE_BUS:local-event-bus}
