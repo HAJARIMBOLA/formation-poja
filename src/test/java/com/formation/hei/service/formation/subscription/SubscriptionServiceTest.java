@@ -42,8 +42,7 @@ class SubscriptionServiceTest {
 
   @BeforeEach
   void setUp() {
-    subscriptionService =
-        new SubscriptionService(userRepository, courseRepository, eventPublisher);
+    subscriptionService = new SubscriptionService(userRepository, courseRepository, eventPublisher);
     user = new User(UUID.randomUUID(), "Jean", "Rakoto", "jrakoto", "jean.rakoto@example.com");
     course =
         new Course(UUID.randomUUID(), "Formation Spring Boot Avancé", Instant.now(), Instant.now());
