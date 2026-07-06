@@ -19,15 +19,29 @@ on:
           Deployment id.
           Optional, if set then Env conf id must remain unset (as we already have an associated Env conf id).
           Mainly used by Poja API: regular users does not have to use it under normal conditions.
-jobs:
-  initiate-deployment:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
+initiate-deployment:
+  runs-on: ubuntu-latest
+  timeout-minutes: 10
+  permissions:
+    contents: write
 
-    env:
-      AWS_REGION: eu-west-3
+  services:
+    postgres:
+      image: postgres:16-alpine
+      env:
+        POSTGRES_DB: formation
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+      ports:
+        - 5432:5432
+      options: >-
+        --health-cmd pg_isready
+        --health-interval 10s
+        --health-timeout 5s
+        --health-retries 5
+
+  env:
+    AWS_REGION: eu-west-3
       
 
     steps:
