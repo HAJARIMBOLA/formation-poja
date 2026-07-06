@@ -14,21 +14,22 @@ import org.springframework.test.context.DynamicPropertySource;
 @Slf4j
 public class FacadeIT {
 
-  @SneakyThrows
-  @DynamicPropertySource
-  static void configureProperties(DynamicPropertyRegistry registry) {
+    @SneakyThrows
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
 
-    new BucketConf().configureProperties(registry);
-    new EmailConf().configureProperties(registry);
+        new BucketConf().configureProperties(registry);
+        new EmailConf().configureProperties(registry);
+        new DbConf().configureProperties(registry);
 
-    try {
-      var envConfClazz = Class.forName("com.formation.hei.conf.EnvConf");
-      var envConfConfigureProperties =
-          envConfClazz.getDeclaredMethod("configureProperties", DynamicPropertyRegistry.class);
-      var envConf = envConfClazz.getConstructor().newInstance();
-      envConfConfigureProperties.invoke(envConf, registry);
-    } catch (ClassNotFoundException e) {
-      log.warn("EnvConf missing: no project-specific test env vars will be set");
+        try {
+            var envConfClazz = Class.forName("com.formation.hei.conf.EnvConf");
+            var envConfConfigureProperties =
+                    envConfClazz.getDeclaredMethod("configureProperties", DynamicPropertyRegistry.class);
+            var envConf = envConfClazz.getConstructor().newInstance();
+            envConfConfigureProperties.invoke(envConf, registry);
+        } catch (ClassNotFoundException e) {
+            log.warn("EnvConf missing: no project-specific test env vars will be set");
+        }
     }
-  }
 }
