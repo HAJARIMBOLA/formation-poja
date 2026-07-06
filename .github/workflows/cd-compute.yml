@@ -19,30 +19,30 @@ on:
           Deployment id.
           Optional, if set then Env conf id must remain unset (as we already have an associated Env conf id).
           Mainly used by Poja API: regular users does not have to use it under normal conditions.
-initiate-deployment:
-  runs-on: ubuntu-latest
-  timeout-minutes: 10
-  permissions:
-    contents: write
+jobs:
+  initiate-deployment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
 
-  services:
-    postgres:
-      image: postgres:16-alpine
-      env:
-        POSTGRES_DB: formation
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-      ports:
-        - 5432:5432
-      options: >-
-        --health-cmd pg_isready
-        --health-interval 10s
-        --health-timeout 5s
-        --health-retries 5
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: formation
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-  env:
-    AWS_REGION: eu-west-3
-      
+    env:
+      AWS_REGION: eu-west-3
 
     steps:
       - uses: actions/checkout@v4.1.6
@@ -161,7 +161,7 @@ initiate-deployment:
                 tag_message: ($tag_message | if . == "null" then null else . end)
               }')")
           echo $response
-      
+
       - name: Tag commit if deployment with custom conf succeeded
         if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.env_conf_id != '' ) && env.TAG_NAME != 'null' && env.TAG_MESSAGE != 'null' }}
         env:
@@ -173,7 +173,7 @@ initiate-deployment:
           git config user.email "bot@poja.io"
           git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
           git push origin "$TAG_NAME"
-          
+
       - name: Update github state if step fails
         if: failure()
         run: |
@@ -210,4 +210,4 @@ initiate-deployment:
                     status: $status,
                     environment_type: $environment_type
                 }')")
-          echo $response 
+          echo $response
