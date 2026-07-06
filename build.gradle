@@ -26,7 +26,7 @@ mavenCentral()
 }
 
 java {
-    group = 'com.formation.hei'
+    group = 'com.example.demo'
     sourceCompatibility = '21'
     targetCompatibility = '21'
 }
@@ -128,7 +128,7 @@ dependencies {
 
     implementation 'jakarta.mail:jakarta.mail-api:2.1.2'
     implementation 'jakarta.activation:jakarta.activation-api:2.1.2'
-    implementation 'org.eclipse.angus:angus-mail:2.0.3'
+    implementation 'com.sun.mail:jakarta.mail:2.0.1'
     implementation 'com.sun.activation:jakarta.activation:2.0.1'
 
     implementation 'org.apache.tika:tika-core:2.9.1'
