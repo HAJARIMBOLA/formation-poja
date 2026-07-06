@@ -111,7 +111,7 @@ jacocoTestReport {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web:3.2.2'
-    testImplementation 'org.testcontainers:testcontainers:2.0.2'
+    testImplementation 'org.testcontainers:testcontainers:1.20.4'
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3'
 
@@ -148,10 +148,10 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql:42.7.3'
     implementation 'org.flywaydb:flyway-core:10.10.0'
     implementation 'org.flywaydb:flyway-database-postgresql:10.10.0'
-    testImplementation 'org.testcontainers:postgresql:2.0.2'
+    testImplementation 'org.testcontainers:postgresql:1.20.4'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.2'
-    testImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.2'
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
 
 
