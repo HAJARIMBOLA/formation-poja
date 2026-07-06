@@ -16,9 +16,6 @@ class PingControllerTest {
 
   @Test
   void repond_pong_avec_un_statut_200() throws Exception {
-    mockMvc
-        .perform(get("/ping"))
-        .andExpect(status().isOk())
-        .andExpect(content().string("pong"));
+    mockMvc.perform(get("/ping")).andExpect(status().isOk()).andExpect(content().string("pong"));
   }
 }
