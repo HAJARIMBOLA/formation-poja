@@ -38,39 +38,41 @@ import lombok.ToString;
 @ToString(exclude = "courses")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, updatable = false)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(name = "id", nullable = false, updatable = false)
+  private UUID id;
 
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
+  @Column(name = "first_name", nullable = false)
+  private String firstName;
 
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
+  @Column(name = "last_name", nullable = false)
+  private String lastName;
 
-    @Column(name = "user_name", nullable = false, unique = true)
-    private String userName;
+  @Column(name = "user_name", nullable = false, unique = true)
+  private String userName;
 
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+  @Column(name = "email", nullable = false, unique = true)
+  private String email;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "user_course",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "course_id"))
-    private Set<Course> courses = new HashSet<>();
+  @ManyToMany(
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+      fetch = FetchType.LAZY)
+  @JoinTable(
+      name = "user_course",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "course_id"))
+  private Set<Course> courses = new HashSet<>();
 
-    /** Enrolls this user to the given course, keeping both sides of the relation in sync. */
-    public void enrollTo(Course course) {
-        this.courses.add(course);
-        course.getUsers().add(this);
-    }
+  /** Enrolls this user to the given course, keeping both sides of the relation in sync. */
+  public void enrollTo(Course course) {
+    this.courses.add(course);
+    course.getUsers().add(this);
+  }
 
-    /** Unenrolls this user from the given course, keeping both sides of the relation in sync. */
-    public void unenrollFrom(Course course) {
-        this.courses.remove(course);
-        course.getUsers().remove(this);
-    }
+  /** Unenrolls this user from the given course, keeping both sides of the relation in sync. */
+  public void unenrollFrom(Course course) {
+    this.courses.remove(course);
+    course.getUsers().remove(this);
+  }
 }
