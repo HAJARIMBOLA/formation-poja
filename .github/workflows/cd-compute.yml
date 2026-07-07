@@ -26,23 +26,9 @@ jobs:
     permissions:
       contents: write
 
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: formation
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     env:
       AWS_REGION: eu-west-3
+      
 
     steps:
       - uses: actions/checkout@v4.1.6
@@ -161,7 +147,7 @@ jobs:
                 tag_message: ($tag_message | if . == "null" then null else . end)
               }')")
           echo $response
-
+      
       - name: Tag commit if deployment with custom conf succeeded
         if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.env_conf_id != '' ) && env.TAG_NAME != 'null' && env.TAG_MESSAGE != 'null' }}
         env:
@@ -173,7 +159,7 @@ jobs:
           git config user.email "bot@poja.io"
           git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
           git push origin "$TAG_NAME"
-
+          
       - name: Update github state if step fails
         if: failure()
         run: |
@@ -210,4 +196,4 @@ jobs:
                     status: $status,
                     environment_type: $environment_type
                 }')")
-          echo $response
+          echo $response 
