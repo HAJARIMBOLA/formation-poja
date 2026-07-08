@@ -20,13 +20,12 @@ jacoco {
 
 
 repositories {
-mavenCentral()
 
     mavenCentral()
 }
 
 java {
-    group = 'com.formation.hei'
+    group = 'com.example.demo'
     sourceCompatibility = '21'
     targetCompatibility = '21'
 }
