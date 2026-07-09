@@ -17,7 +17,7 @@ un e-mail de confirmation est envoyé automatiquement après chaque inscription.
 ## Architecture
 
 ```
-com.formation.hei
+com.example.demo
 ├── endpoint/rest/controller     # Controllers REST
 │   ├── formation/               # Inscription à une formation (endpoint ponctuel)
 │   ├── subscription/            # Abonnement à un cours
