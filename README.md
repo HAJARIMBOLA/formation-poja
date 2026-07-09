@@ -91,3 +91,10 @@ format.bat
 # Linux / macOS
 find . -name "*.java" -exec java -jar google-java-format-1.23.0-all-deps.jar --replace {} \;
 ```
+
+Les membres du groupe : 
+Antonerrie STD24207
+Miahy STD24123
+Mbola STD24045
+Lalaina STD
+Franco STD24029
