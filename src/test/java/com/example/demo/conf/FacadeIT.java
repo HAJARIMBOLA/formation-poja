@@ -20,6 +20,7 @@ public class FacadeIT {
 
     new BucketConf().configureProperties(registry);
     new EmailConf().configureProperties(registry);
+    new DbConf().configureProperties(registry);
 
     try {
       var envConfClazz = Class.forName("com.example.demo.conf.EnvConf");
