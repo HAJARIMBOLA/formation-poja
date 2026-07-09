@@ -17,22 +17,32 @@ un e-mail de confirmation est envoyé automatiquement après chaque inscription.
 ## Architecture
 
 ```
-com.formation.hei
+com.example.demo
 ├── endpoint/rest/controller     # Controllers REST
 │   ├── formation/               # Inscription à une formation (endpoint ponctuel)
 │   ├── subscription/            # Abonnement à un cours
 │   └── health/                  # Endpoints de santé
+├── endpoint/event/              # Publication d'événements (SQS/EventBridge, généré par POJA)
 ├── service/
 │   ├── formation/                # InscriptionService
 │   └── subscription/
 │       ├── SubscriptionService.java
 │       └── event/                # EnrollmentEvent + listener asynchrone
-├── model/                        # User, Course
+├── model/                        # User, Course (modèles en mémoire, endpoint ponctuel)
 ├── repository/                   # Interfaces + implémentations in-memory
+├── data/
+│   ├── entity/                   # User, Course : entités JPA persistées en base
+│   └── repository/                # UserRepository, CourseRepository (Spring Data JPA)
 ├── mail/                         # Mailer, Email (généré par POJA)
 ├── exception/                    # Exceptions métier
+├── handler/                      # LambdaHandler, MailboxEventHandler (généré par POJA)
 └── conf/                         # Configuration (ex: AsyncConf)
 ```
+
+> Note : `model`/`repository` (en mémoire) et `data/entity`/`data/repository` (JPA + PostgreSQL,
+> migrations Flyway dans `src/main/resources/db/migration`) coexistent actuellement : le premier
+> couple sert les endpoints d'inscription "ponctuels", le second est la persistance réelle
+> utilisateurs/cours vérifiée par le test d'intégration `UserCourseRepositoryIT` (Testcontainers).
 
 ## Endpoints
 
@@ -79,6 +89,17 @@ Les tests couvrent :
 - les controllers REST (`@WebMvcTest`)
 - les repositories en mémoire
 - le gestionnaire d'exceptions global (`RestExceptionHandler`)
+- la logique d'inscription bidirectionnelle de l'entité JPA `User` (`UserTest`)
+- la persistance réelle User/Course en base (`UserCourseRepositoryIT`), via un conteneur
+  PostgreSQL jetable démarré par Testcontainers (`DbConf`) ; **Docker doit être disponible**
+  pour exécuter ce test (localement et en CI)
+
+Les classes `BucketConf`, `EmailConf`, `EventConf` et `DbConf` (package `conf`) injectent les
+propriétés de test nécessaires (bucket S3, expéditeur SES, EventBridge/SQS, base Postgres) via
+`FacadeIT`, la classe mère des tests d'intégration Spring Boot. Toute nouvelle propriété
+`${...}` requise par un bean doit être ajoutée dans l'un de ces `*Conf` **et** appelée dans
+`FacadeIT.configureProperties`, sans quoi le contexte Spring échouera à démarrer en test avec une
+erreur `Could not resolve placeholder`.
 
 ## Formatage du code
 
@@ -91,3 +112,10 @@ format.bat
 # Linux / macOS
 find . -name "*.java" -exec java -jar google-java-format-1.23.0-all-deps.jar --replace {} \;
 ```
+
+Les membres du groupe : 
+Antonerrie STD24207
+Miahy STD24123
+Mbola STD24045
+Lalaina STD
+Franco STD24029
