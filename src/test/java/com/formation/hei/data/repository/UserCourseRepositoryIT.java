@@ -2,7 +2,6 @@ package com.formation.hei.data.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.formation.hei.conf.FacadeIT;
 import com.formation.hei.data.entity.Course;
 import com.formation.hei.data.entity.User;
 import java.time.LocalDate;
